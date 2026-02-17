@@ -121,9 +121,7 @@ def on_press(key):
     try:
         if key == keyboard.Key.cmd:
             ctrl_pressed = True
-        elif key == keyboard.Key.shift:
-            shift_pressed = True
-        elif ctrl_pressed and shift_pressed:
+        elif ctrl_pressed:
             if hasattr(key, 'char'):
                 if key.char == 'c':
                     send_to_server()
