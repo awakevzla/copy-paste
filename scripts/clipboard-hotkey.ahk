@@ -66,29 +66,60 @@ GetFromServer() {
         http.Send()
         
         if (http.Status = 200) {
-            ; Parse JSON
+            ; Parse JSON response
             response := http.ResponseText
             dq := Chr(34)
             
-            ; Simple JSON parsing para { "text": "..." }
-            searchStr := dq . "text" . dq . ":"
-            startPos := InStr(response, searchStr)
-            if (startPos > 0) {
-                startPos := InStr(response, dq, startPos + 8)
-                endPos := InStr(response, dq, startPos + 1)
-                text := SubStr(response, startPos + 1, endPos - startPos - 1)
+            ; Encontrar la posición de "text":
+            textKeyStr := dq . "text" . dq . ":"
+            keyPos := InStr(response, textKeyStr)
+            
+            if (keyPos > 0) {
+                ; Encontrar el primer quote después de "text":
+                startSearchPos := keyPos + StrLen(textKeyStr)
+                quotePos := InStr(response, dq, , startSearchPos)
                 
-                ; Reemplazar escaped sequences
-                text := StrReplace(text, "\" . dq, dq)
-                text := StrReplace(text, "\\", "\")
-                text := StrReplace(text, "\n", "`n")
-                text := StrReplace(text, "\r", "`r")
-                
-                ; Copiar al portapapeles
-                A_Clipboard := text
-                
-                preview := SubStr(StrReplace(text, "`n", " "), 1, 40)
-                ShowTooltip("✅ Obtenido: " preview "...")
+                if (quotePos > 0) {
+                    ; Encontrar el closing quote
+                    closeQuotePos := 0
+                    searchPos := quotePos + 1
+                    
+                    ; Buscar el quote de cierre, considerando escapes
+                    loop {
+                        pos := InStr(response, dq, , searchPos)
+                        if (pos = 0)
+                            break
+                        
+                        ; Verificar si está escapado
+                        if (pos > 1 && SubStr(response, pos - 1, 1) != "\") {
+                            closeQuotePos := pos
+                            break
+                        }
+                        searchPos := pos + 1
+                    }
+                    
+                    if (closeQuotePos > 0) {
+                        ; Extraer el texto entre quotes
+                        text := SubStr(response, quotePos + 1, closeQuotePos - quotePos - 1)
+                        
+                        ; Reemplazar escaped sequences
+                        text := StrReplace(text, "\" . dq, dq)
+                        text := StrReplace(text, "\\", "\")
+                        text := StrReplace(text, "\n", "`n")
+                        text := StrReplace(text, "\r", "`r")
+                        text := StrReplace(text, "\t", "`t")
+                        
+                        ; Copiar al portapapeles
+                        A_Clipboard := text
+                        
+                        preview := SubStr(StrReplace(text, "`n", " "), 1, 40)
+                        ShowTooltip("✅ Obtenido: " preview "...")
+                        
+                        ; Pegar automáticamente en la ventana activa
+                        Sleep(100)
+                        Send("^v")
+                    }
+                }
             }
         } else {
             ShowTooltip("❌ Error: " http.Status)
