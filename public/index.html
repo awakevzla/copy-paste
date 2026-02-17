@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Clipboard Compartido</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📋 Clipboard Compartido</h1>
+      <p class="subtitle">Comparte texto entre máquinas en red local</p>
+    </header>
+
+    <main>
+      <!-- Status indicator -->
+      <div id="status" class="status status-idle">
+        <span class="status-dot"></span>
+        Listo
+      </div>
+
+      <!-- Action buttons -->
+      <div class="button-group">
+        <button id="sendBtn" class="btn btn-primary">
+          📤 Enviar portapapeles
+        </button>
+        <button id="fetchBtn" class="btn btn-primary">
+          📥 Obtener portapapeles
+        </button>
+      </div>
+
+      <!-- Message display -->
+      <div id="message" class="message hidden"></div>
+
+      <!-- Server info -->
+      <footer class="server-info">
+        <p id="serverStatus">Conectando con servidor...</p>
+      </footer>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
